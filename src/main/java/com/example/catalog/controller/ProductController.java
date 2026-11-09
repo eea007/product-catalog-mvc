@@ -1,5 +1,6 @@
 package com.example.catalog.controller;
 
+import com.example.catalog.model.ProductCount;
 import com.example.catalog.model.ProductRequest;
 import com.example.catalog.model.ProductResponse;
 import com.example.catalog.model.ProductWithPrice;
@@ -39,6 +40,16 @@ public class ProductController {
     @GetMapping("/search")
     public List<ProductResponse> searchByName(@RequestParam(defaultValue = "") String name) {
         return productService.findByName(name);
+    }
+
+    /**
+     * MVC-only addition (not in REACTIVE). The literal "/count" pattern is more
+     * specific than "/{id}", so Spring MVC picks this mapping; ProductControllerTest
+     * checks that it never reaches findById.
+     */
+    @GetMapping("/count")
+    public ProductCount count() {
+        return new ProductCount(productService.countProducts());
     }
 
     @GetMapping("/{id}/price")

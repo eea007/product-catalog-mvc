@@ -41,6 +41,12 @@ public class ProductService {
         return ProductMapper.toResponse(product);
     }
 
+    public long countProducts() {
+        long count = repository.count();
+        log.info("Counted {} products", count);
+        return count;
+    }
+
     public boolean exists(Long id) {
         return repository.existsById(id);
     }
