@@ -1,0 +1,18 @@
+# Activated with @ActiveProfiles("test"): in-memory H2 instead of PostgreSQL,
+# placeholder keys, and no seeding. No external service is contacted at startup.
+spring:
+  datasource:
+    url: jdbc:h2:mem:catalogdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+api-key: test-placeholder-key
+anthropic-api-key: test-placeholder-key
+
+data:
+  seed:
+    enabled: false

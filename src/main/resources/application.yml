@@ -1,0 +1,111 @@
+# Default / local profile. The "aws" profile (application-aws.yml) layers the
+# Secrets Manager imports, the RDS datasource and CloudWatch export on top.
+spring:
+  application:
+    name: product-catalog-mvc
+
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_1uhRbLPvP
+          jwk-set-uri: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_1uhRbLPvP/.well-known/jwks.json
+
+  cloud:
+    aws:
+      region:
+        static: ${aws.region}
+      # CloudWatch export is only enabled in the aws profile
+      cloudwatch:
+        enabled: false
+
+management:
+  cloudwatch:
+    metrics:
+      export:
+        enabled: false
+        namespace: ProductCatalog
+        step: 5m
+  metrics:
+    enable:
+      all: false
+      http:
+        server:
+          requests: true
+      jvm:
+        memory: true
+    tags:
+      application: ${spring.application.name}
+      environment: local
+  # REACTIVE also exposes "prometheus", which has no registry behind it; omitted.
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+server:
+  port: 8080
+  shutdown: graceful
+
+aws:
+  region: us-east-2
+  s3:
+    bucket: product-catalog-images-dev-325879634980
+  sns:
+    stock-depleted-topic-arn: arn:aws:sns:us-east-2:325879634980:stock-depleted-topic
+
+currency:
+  service:
+    url: http://localhost:8083
+    connect-timeout: 5s
+    read-timeout: 3s
+inventory:
+  service:
+    url: http://localhost:8082
+    connect-timeout: 5s
+    read-timeout: 3s
+
+# In the aws profile both keys are overridden by the Secrets Manager imports.
+api-key: ${CURRENCY_API_KEY:}
+anthropic-api-key: ${ANTHROPIC_API_KEY:}
+
+assistant:
+  model: claude-sonnet-5
+
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:5173
+    - http://localhost:4200
+
+data:
+  seed:
+    enabled: true
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    org.springframework.ai.chat.client: DEBUG
+    org.springframework.web.client: DEBUG

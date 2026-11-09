@@ -1,0 +1,24 @@
+spring:
+  config:
+    import: "optional:aws-secretsmanager:product-catalog/rds,optional:aws-secretsmanager:product-catalog/anthropic"
+
+  datasource:
+    url: jdbc:postgresql://database-1.c5iou48aowj1.us-east-2.rds.amazonaws.com:5432/postgres?sslmode=require
+    username: ${username}
+    password: ${password}
+
+  cloud:
+    aws:
+      secretsmanager:
+        enabled: true
+      cloudwatch:
+        enabled: true
+
+management:
+  cloudwatch:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    tags:
+      environment: production
