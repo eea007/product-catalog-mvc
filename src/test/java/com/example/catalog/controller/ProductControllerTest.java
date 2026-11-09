@@ -26,6 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -153,6 +155,28 @@ class ProductControllerTest {
 
         mockMvc.perform(delete("/api/v1/products/99").with(jwt()))
             .andExpect(status().isNotFound());
+    }
+
+    // ── MVC-only endpoints ────────────────────────────────────────────────
+
+    @Test
+    void count_returns200WithTotalAndDoesNotHitIdMapping() throws Exception {
+        when(productService.countProducts()).thenReturn(42L);
+
+        mockMvc.perform(get("/api/v1/products/count").with(jwt()).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(content().json("{\"count\":42}", true));
+
+        verify(productService, never()).findById(any());
+    }
+
+    @Test
+    void count_returns401WithoutToken() throws Exception {
+        mockMvc.perform(get("/api/v1/products/count"))
+            .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(productService);
     }
 
     // ── Security ──────────────────────────────────────────────────────────

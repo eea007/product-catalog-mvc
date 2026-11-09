@@ -61,6 +61,13 @@ class ProductServiceTest {
     }
 
     @Test
+    void countProducts_returnsRepositoryCount() {
+        when(repository.count()).thenReturn(42L);
+
+        assertThat(service.countProducts()).isEqualTo(42L);
+    }
+
+    @Test
     void findById_returnsProductWhenFound() {
         when(repository.findById(1L)).thenReturn(Optional.of(product(1L, 10)));
 
